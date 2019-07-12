@@ -26,7 +26,7 @@ function getUserByMid(userMid) {
         User.findByPk(userMid)
             .then((user, err) => {
                 if (!err) {
-                    console.log("User retrieved{{In DAO}}");
+                    console.log("User retrieved by MID {{In DAO}}");
                     resolve(user);
                 } else {
                     console.log("Failed to get user by MID {{In DAO}} ", err);
@@ -42,20 +42,20 @@ function getUserByMid(userMid) {
 
 function getAllAdmins() {
     return new Promise((resolve, reject) => {
-        User.find({
-            where: {
-                role: 'admin'
-            }
-        }).then((admins, error) => {
-            if (!error) {
+        User.findAll({
+            attributes: ['mid'],
+            where: { role: 'admin' }
+        }).then((admins, err) => {
+            if (!err) {
+                console.log("List of Admins retrieved {{In DAO}}");
                 resolve(admins);
             } else {
-                console.log("Failed to get admins", error);
-                reject(new Error("Failed to get admins"));
+                console.log("Failed to get list of admins {{In DAO}} ", err);
+                reject(new Error("Failed to get list of admins {{In DAO}}"));
             }
         }).catch((error) => {
-            console.log("Failed to get admins", error);
-            reject(new Error("Failed to get admins"));
+            console.log("Failed to get list of admins {{In DAO}} ", error);
+            reject(new Error("Failed to get list of admins {{In DAO}}"));
         });
     })
 }

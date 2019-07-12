@@ -13,6 +13,7 @@ var technologyDao = require('../dao/technologyDao');
 var pendingCaseletDao = require('../dao/pendingCaseletDao');
 var caseletHistoryDao = require('../dao/caseletHistoryDao');
 var userDao = require('../dao/userDao');
+var sendEmail = require('../util/mailer');
 
 var adminService = {
     addProject,
@@ -23,7 +24,7 @@ var adminService = {
     getAllAdmins
 }
 
-function addProject(body, adminMid) {
+function addProject(body, admin) {
     return new Promise((resolve, reject) => {
 
         pendingCaseletDao.getSavedCaseletsByUser(body.userMid)
@@ -61,15 +62,21 @@ function addProject(body, adminMid) {
                                     b.contractId = values[8].dataValues.id;
                                     b.accountId = values[9].dataValues.id;
                                     b.expertsOfTopic = body.expertsOfTopic.join();
-                                
+
                                     console.log(b);
 
                                     caseletDao.addProject(b, values[0], values[1], values[2])
                                         .then((projectAdded) => {
 
-                                            console.log("ProjectId: ",projectAdded.dataValues.id);
-                                            caseletHistoryDao.approveCaselet(projectAdded.dataValues.id, adminMid, caselet.dataValues.id)
-                                                .then((caseletHistory) => {
+                                            var caseletHist = caseletHistoryDao.approveCaselet(projectAdded.dataValues.id, admin.mid, caselet.dataValues.id);
+                                            var data = {
+                                                projectId: projectAdded.dataValues.id,
+                                                title: projectAdded.dataValues.title
+                                            }
+                                            var email = sendEmail('approved', admin.name, body.userDetails, data);
+
+                                            Promise.all([caseletHist, email])
+                                                .then((values) => {
                                                     console.log("Project approved! {{In Service}}");
                                                     pendingCaseletDao.deletePendingCaselet(b.userMid);
                                                     resolve(projectAdded);
@@ -118,7 +125,6 @@ function getCaseletsForAdmin(limit, pageNo) {
                 console.log(caseletHistory);
 
                 caseletHistory.map((caselet) => {
-                    console.log("Caselet Map: ", caselet.dataValues);
 
                     if (caselet.dataValues.status == 'Approved') {
                         approvedCaselets.push(parseInt(caselet.dataValues.caseletId));
@@ -127,9 +133,6 @@ function getCaseletsForAdmin(limit, pageNo) {
                         pendingCaselets.push(parseInt(caselet.dataValues.caseletId));
                     }
                 });
-
-                console.log("ApprovedCaselets: ", approvedCaselets);
-                console.log("PendingCaselets: ", pendingCaselets);
 
                 var a = caseletDao.getTitles(approvedCaselets);
                 var p = pendingCaseletDao.getTitles(pendingCaselets);
@@ -147,8 +150,11 @@ function getCaseletsForAdmin(limit, pageNo) {
                                 caselet.dataValues.title = res.dataValues.title;
                             }
                         });
-
+                        console.log("Projects retrieved for admin! {{In Service}}");
                         resolve(caseletHistory);
+                    }).catch((err) => {
+                        console.log("Failed to get projects for admin {{In Service}}", err);
+                        reject(err);
                     });
             });
     });
@@ -167,12 +173,14 @@ function getSumbittedCaseletById(caseletId) {
     });
 }
 
-function sendFeedback(pendingCaseletId, message, adminMid) {
+function sendFeedback(pendingCaseletId, body, admin) {
     return new Promise((resolve, reject) => {
-        const pendingCaselet = pendingCaseletDao.sendFeedback(pendingCaseletId);
-        const caseletHistory = caseletHistoryDao.sendBackCaselet(pendingCaseletId, message, adminMid);
 
-        Promise.all([pendingCaselet, caseletHistory])
+        const pendingCaselet = pendingCaseletDao.sendFeedback(pendingCaseletId);
+        const caseletHistory = caseletHistoryDao.sendBackCaselet(pendingCaseletId, body.message, admin.mid);
+        const email = sendEmail('reject', admin.name, body.userDetails, body.message);
+
+        Promise.all([pendingCaselet, caseletHistory, email])
             .then((project) => {
                 console.log("Pending Projects feedback sent! {{In Service}}");
                 resolve(project);
@@ -180,15 +188,19 @@ function sendFeedback(pendingCaseletId, message, adminMid) {
                 console.log("Failed to send pending projects feedback {{In Service}}", err);
                 reject(err);
             });
-    })
+    });
 }
 
 function getAllAdmins() {
     return new Promise((resolve, reject) => {
-        userDao.getAllAdmins().then((admins) => {
-            resolve(admins);
-        }).catch((error) => {
-            reject(error);
+        userDao.getAllAdmins()
+            .then((admins) => {
+                var adminArray = admins.map(admin => admin.mid);
+                console.log("List of Admins retrieved {{In Service}}");
+                resolve(adminArray);
+            }).catch((err) => {
+                console.log("Failed to get list of admins {{In Service}} ", err);
+                reject(err);
         })
     });
 }
