@@ -1,7 +1,6 @@
 var Promise = require('bluebird');
 var AzureSearch = require('azure-search');
 var searchConfig = require('../config/searchConfig');
-// var emailConfig = require('../config/emailConfig');
 var sendEmail = require('../util/mailer');
 
 var caseletDao = require('../dao/caseletDao');
@@ -228,9 +227,11 @@ function shareProject(projectId, from, body) {
 
         var to = body.to;
         console.log(body);
+        var data = body;
+        data.projectId = projectId;
 
         const mails = to.map(emailTo => {
-            return sendEmail('share', from, emailTo, body);
+            return sendEmail('share', from.name, emailTo, data);
         });
 
         Promise.all(mails)

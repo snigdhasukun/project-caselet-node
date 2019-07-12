@@ -15,7 +15,7 @@ function addProject(req, res) {
 
     var body = req.body;
 
-    adminService.addProject(body, req.user.mid).then((projectAdded) => {
+    adminService.addProject(body, req.user).then((projectAdded) => {
         response.data.project = projectAdded;
         response.status.statusCode = '200';
         response.status.message = 'Project approved successfully!!';
@@ -85,9 +85,8 @@ function sendFeedback(req, res) {
     var response = new Response();
 
     var pendingCaseletId = req.params.projectId;
-    var message = req.body.message;
 
-    adminService.sendFeedback(pendingCaseletId, message, req.user.mid)
+    adminService.sendFeedback(pendingCaseletId, req.body, req.user)
         .then((project) => {
             response.data.project = project;
             response.status.statusCode = '200';
@@ -101,18 +100,19 @@ function sendFeedback(req, res) {
 }
 
 function getAllAdmins(req, res) {
+    var response = new Response();
+
     adminService.getAllAdmins()
-    .then((admins) => {
-        console.log(admins);
-        response.data.project = admins;
-        response.status.statusCode = '200';
-        response.status.message = 'Admins data retrieved';
-        res.send('Hi');
-    }).catch((error) => {
-        response.status.statusCode = '500';
-        response.status.message = 'Could not get admin data';
-        res.status(500).json(response);
-    });
+        .then((admins) => {
+            response.data.admins = admins;
+            response.status.statusCode = 200;
+            response.status.message = 'List of admins retrieved';
+            res.status(200).json(response);
+        }).catch((err) => {
+            response.status.statusCode = '500';
+            response.status.message = 'Could not get list of admins: '+ err.message;
+            res.status(500).json(response);
+        });
 }
 
 module.exports = adminController;
