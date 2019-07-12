@@ -103,10 +103,11 @@ function sendFeedback(req, res) {
 function getAllAdmins(req, res) {
     adminService.getAllAdmins()
     .then((admins) => {
-        response.data.admins = admins;
-        response.status.statusCode = 200;
+        console.log(admins);
+        response.data.project = admins;
+        response.status.statusCode = '200';
         response.status.message = 'Admins data retrieved';
-        res.status(200).json(response);
+        res.send('Hi');
     }).catch((error) => {
         response.status.statusCode = '500';
         response.status.message = 'Could not get admin data';

@@ -42,7 +42,7 @@ function getUserByMid(userMid) {
 
 function getAllAdmins() {
     return new Promise((resolve, reject) => {
-        User.find({
+        User.findAll({
             where: {
                 role: 'admin'
             }

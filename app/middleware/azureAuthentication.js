@@ -14,7 +14,6 @@ var options = {
 
 var bearerStrategy = new OIDCBearerStrategy(options,
     function (token, done) {
-        console.log(token, 'was the token retreived');
         if (!token.oid)
             done(new Error('oid is not found in token'));
         else {
