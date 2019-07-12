@@ -6,7 +6,8 @@ var adminController = {
     deleteProjectById,
     getCaseletsForAdmin,
     getSumbittedCaseletById,
-    sendFeedback
+    sendFeedback,
+    getAllAdmins
 }
 
 function addProject(req, res) {
@@ -97,6 +98,20 @@ function sendFeedback(req, res) {
             response.status.message = 'Could not get send feeback for pending project: ' + err.message;
             res.status(500).json(response);
         });
+}
+
+function getAllAdmins(req, res) {
+    adminService.getAllAdmins()
+    .then((admins) => {
+        response.data.admins = admins;
+        response.status.statusCode = 200;
+        response.status.message = 'Admins data retrieved';
+        res.status(200).json(response);
+    }).catch((error) => {
+        response.status.statusCode = '500';
+        response.status.message = 'Could not get admin data';
+        res.status(500).json(response);
+    });
 }
 
 module.exports = adminController;

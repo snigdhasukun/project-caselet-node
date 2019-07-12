@@ -4,7 +4,8 @@ const { User } = require('../config/sequelize');
 
 var userDao = {
     addUser,
-    getUserByMid
+    getUserByMid,
+    getAllAdmins
 }
 
 function addUser(userMid) {
@@ -37,6 +38,26 @@ function getUserByMid(userMid) {
                 reject(new Error("Failed to get user by MID {{In DAO}}"));
             });
     });
+}
+
+function getAllAdmins() {
+    return new Promise((resolve, reject) => {
+        User.find({
+            where: {
+                role: 'admin'
+            }
+        }).then((admins, error) => {
+            if (!error) {
+                resolve(admins);
+            } else {
+                console.log("Failed to get admins", error);
+                reject(new Error("Failed to get admins"));
+            }
+        }).catch((error) => {
+            console.log("Failed to get admins", error);
+            reject(new Error("Failed to get admins"));
+        });
+    })
 }
 
 module.exports = userDao;

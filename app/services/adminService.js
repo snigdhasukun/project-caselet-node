@@ -12,13 +12,15 @@ var toolDao = require('../dao/toolDao');
 var technologyDao = require('../dao/technologyDao');
 var pendingCaseletDao = require('../dao/pendingCaseletDao');
 var caseletHistoryDao = require('../dao/caseletHistoryDao');
+var userDao = require('../dao/userDao');
 
 var adminService = {
     addProject,
     deleteProjectById,
     getCaseletsForAdmin,
     getSumbittedCaseletById,
-    sendFeedback
+    sendFeedback,
+    getAllAdmins
 }
 
 function addProject(body, adminMid) {
@@ -179,6 +181,16 @@ function sendFeedback(pendingCaseletId, message, adminMid) {
                 reject(err);
             });
     })
+}
+
+function getAllAdmins() {
+    return new Promise((resolve, reject) => {
+        userDao.getAllAdmins().then((admins) => {
+            resolve(admins);
+        }).catch((error) => {
+            reject(error);
+        })
+    });
 }
 
 module.exports = adminService;
