@@ -69,12 +69,19 @@ function addProject(body, admin) {
                                         .then((projectAdded) => {
 
                                             var caseletHist = caseletHistoryDao.approveCaselet(projectAdded.dataValues.id, admin.mid, caselet.dataValues.id);
+                                            
+                                            var email;
                                             var data = {
                                                 projectId: projectAdded.dataValues.id,
-                                                title: projectAdded.dataValues.title
+                                                title: projectAdded.dataValues.title,
+                                                editedFields: body.editedFields
                                             }
-                                            var email = sendEmail('approved', admin.name, body.userDetails, data);
 
+                                            if (body.editedFields.length == 0)
+                                                email = sendEmail('approved', admin.name, body.userDetails, data);
+                                            else
+                                                email = sendEmail('edited', admin.name, body.userDetails, data);
+                                            
                                             Promise.all([caseletHist, email])
                                                 .then((values) => {
                                                     console.log("Project approved! {{In Service}}");
