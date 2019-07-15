@@ -13,6 +13,9 @@ var tagRouter = require('./app/routes/tagRouter');
 var adminRouter = require('./app/routes/adminRouter');
 var imageRouter = require('./app/routes/imageRouter');
 var userRouter = require('./app/routes/userRouter');
+var metadataRouter = require('./app/routes/metadataRouter');
+var technologyRouter = require('./app/routes/technologyRouter');
+var toolRouter = require('./app/routes/toolRouter');
 
 appInsights
   .setup(config.instrumentationKey)
@@ -45,6 +48,9 @@ app.use('/projectcaseletsapi/filter', filterRouter);
 app.use('/projectcaseletsapi/tags', tagRouter);
 app.use('/projectcaseletsapi/admin', adminRouter);
 app.use('/projectcaseletsapi/image', imageRouter);
+app.use('/projectcaseletsapi/metadata', metadataRouter);
+app.use('/projectcaseletsapi/technologies', technologyRouter);
+app.use('/projectcaseletsapi/tools', toolRouter);
 
 sequelize.createTables().then(res => {
   setup();
