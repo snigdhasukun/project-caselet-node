@@ -49,8 +49,11 @@ function getCaseletsForAdmin(req, res) {
 
     var pageNo = req.query.pageNo;
     var limit = req.query.limit;
+    var adminMid = req.query.adminMid;
+    var status = req.query.status;
+    var fromDate = req.query.fromDate;
 
-    adminService.getCaseletsForAdmin(limit, pageNo).then((projects) => {
+    adminService.getCaseletsForAdmin(limit, pageNo, adminMid, status, fromDate).then((projects) => {
         response.data.projects = projects;
         response.status.statusCode = '200';
         response.status.message = 'Project retrieved!!';

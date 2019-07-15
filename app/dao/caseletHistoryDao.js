@@ -1,5 +1,6 @@
 var Promise = require('bluebird');
 const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 
 const { CaseletHistory } = require('../config/sequelize');
 
@@ -12,13 +13,35 @@ var caseletHistoryDao = {
     approveCaselet
 }
 
-function getCaseletHistory(limit, pageNo) {
+function getCaseletHistory(limit, pageNo, adminMid, status, fromDate) {
     return new Promise((resolve, reject) => {
-        
+
+        console.log("Hi from Dao");
+
+        var whereClause = {};
+
+        if (typeof adminMid === 'undefined' && typeof status === 'undefined' && typeof fromDate === 'undefined')
+            whereClause = false;
+        else {
+            if (typeof adminMid !== 'undefined')
+                whereClause.adminMid = adminMid;
+
+            if (typeof status !== 'undefined')
+                whereClause.status = status;
+
+            if (typeof fromDate !== 'undefined')
+                whereClause.submittedTime = {
+                    [Op.between]: [fromDate, Sequelize.literal('CURRENT_TIMESTAMP')]
+                }
+        }
+
+        console.log(whereClause);
+
         const offset = limit * (pageNo - 1);
         limit = parseInt(limit);
 
         CaseletHistory.findAll({
+            where: whereClause,
             offset: offset,
             limit: limit,
             subQuery: false

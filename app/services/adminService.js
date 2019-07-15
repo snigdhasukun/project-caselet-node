@@ -121,10 +121,10 @@ function deleteProjectById(projectId) {
     });
 }
 
-function getCaseletsForAdmin(limit, pageNo) {
+function getCaseletsForAdmin(limit, pageNo, adminMid, status, fromDate) {
     return new Promise((resolve, reject) => {
 
-        caseletHistoryDao.getCaseletHistory(limit, pageNo)
+        caseletHistoryDao.getCaseletHistory(limit, pageNo, adminMid, status, fromDate)
             .then((caseletHistory) => {
                 var approvedCaselets = [];
                 var pendingCaselets = [];
