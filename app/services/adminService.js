@@ -124,14 +124,18 @@ function deleteProjectById(projectId) {
 function getCaseletsForAdmin(limit, pageNo, adminMid, status, fromDate) {
     return new Promise((resolve, reject) => {
 
-        caseletHistoryDao.getCaseletHistory(limit, pageNo, adminMid, status, fromDate)
-            .then((caseletHistory) => {
+        var caseletCount = caseletHistoryDao.getCaseletHistoryCount(adminMid, status, fromDate);
+
+        var caseletHistory = caseletHistoryDao.getCaseletHistory(limit, pageNo, adminMid, status, fromDate)
+            
+            Promise.all([caseletCount, caseletHistory])
+                .then((result) => {
+                
+                
                 var approvedCaselets = [];
                 var pendingCaselets = [];
 
-                console.log(caseletHistory);
-
-                caseletHistory.map((caselet) => {
+                result[1].map((caselet) => {
 
                     if (caselet.dataValues.status == 'Approved') {
                         approvedCaselets.push(parseInt(caselet.dataValues.caseletId));
@@ -147,7 +151,7 @@ function getCaseletsForAdmin(limit, pageNo, adminMid, status, fromDate) {
                 Promise.all([a, p])
                     .then((values) => {
 
-                        caseletHistory.map((caselet) => {
+                        result[1].map((caselet) => {
                             if (caselet.dataValues.status == 'Approved') {
                                 var res = values[0].find(o => o.dataValues.id === caselet.dataValues.caseletId);
                                 caselet.dataValues.title = res.dataValues.title;
@@ -158,7 +162,10 @@ function getCaseletsForAdmin(limit, pageNo, adminMid, status, fromDate) {
                             }
                         });
                         console.log("Projects retrieved for admin! {{In Service}}");
-                        resolve(caseletHistory);
+                        var res = {};
+                        res.caseletCount = result[0];
+                        res.caseletHistory = result[1];
+                        resolve(res);
                     }).catch((err) => {
                         console.log("Failed to get projects for admin {{In Service}}", err);
                         reject(err);

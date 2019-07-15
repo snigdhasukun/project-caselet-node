@@ -6,11 +6,50 @@ const { CaseletHistory } = require('../config/sequelize');
 
 var caseletHistoryDao = {
     getCaseletHistory,
+    getCaseletHistoryCount,
     getCaseletHistoryById,
     addSubmittedCaselet,
     updateSubmittedCaselet,
     sendBackCaselet,
     approveCaselet
+}
+
+function getCaseletHistoryCount(adminMid, status, fromDate) {
+    return new Promise((resolve, reject) => {
+        var whereClause = {};
+
+        if (typeof adminMid === 'undefined' && typeof status === 'undefined' && typeof fromDate === 'undefined')
+            whereClause = false;
+        else {
+            if (typeof adminMid !== 'undefined')
+                whereClause.adminMid = adminMid;
+
+            if (typeof status !== 'undefined')
+                whereClause.status = status;
+
+            if (typeof fromDate !== 'undefined')
+                whereClause.submittedTime = {
+                    [Op.between]: [fromDate, Sequelize.literal('CURRENT_TIMESTAMP')]
+                }
+        }
+
+        CaseletHistory.count({
+            where: whereClause
+        })
+            .then((caseletHistoryCount, err) => {
+                if (!err) {
+                    console.log("Caselet History count retrieved");
+                    resolve(caseletHistoryCount);
+                } else {
+                    console.log("Failed to get Caselet History count {{In DAO}} ", err);
+                    reject(new Error("Failed to get Caselet History count {{In DAO}}"));
+                }
+            }).catch((error) => {
+                console.log("Failed to get Caselet History count {{In DAO}}");
+                console.log('Error', error);
+                reject(new Error("Failed to get Caselet History count {{In DAO}}"));
+            });
+    })
 }
 
 function getCaseletHistory(limit, pageNo, adminMid, status, fromDate) {
@@ -46,16 +85,16 @@ function getCaseletHistory(limit, pageNo, adminMid, status, fromDate) {
         })
             .then((caseletHistory, err) => {
                 if (!err) {
-                    console.log("Caselet retrieved to Caselet History");
+                    console.log("Caselet History retrieved");
                     resolve(caseletHistory);
                 } else {
-                    console.log("Failed to get caselet to Caselet History {{In DAO}} ", err);
-                    reject(new Error("Failed to get caselet to Caselet History {{In DAO}}"));
+                    console.log("Failed to get Caselet History {{In DAO}} ", err);
+                    reject(new Error("Failed to get Caselet History {{In DAO}}"));
                 }
             }).catch((error) => {
-                console.log("Failed to get caselet to Caselet History {{In DAO}}");
+                console.log("Failed to get Caselet History {{In DAO}}");
                 console.log('Error', error);
-                reject(new Error("Failed to get caselet to Caselet History {{In DAO}}"));
+                reject(new Error("Failed to get Caselet History {{In DAO}}"));
             });
     });
 }
@@ -69,16 +108,16 @@ function getCaseletHistoryById(caseletId) {
             }
         }).then((caseletHistory, err) => {
             if (!err) {
-                console.log("Caselet retrieved to Caselet History");
+                console.log("Caselet History retrieved by Caselet ID");
                 resolve(caseletHistory);
             } else {
-                console.log("Failed to get caselet to Caselet History {{In DAO}} ", err);
-                reject(new Error("Failed to get caselet to Caselet History {{In DAO}}"));
+                console.log("Failed to get Caselet History  by Caselet ID {{In DAO}} ", err);
+                reject(new Error("Failed to get Caselet History by Caselet ID {{In DAO}}"));
             }
         }).catch((error) => {
-            console.log("Failed to get caselet to Caselet History {{In DAO}}");
+            console.log("Failed to get Caselet History by Caselet ID {{In DAO}}");
             console.log('Error', error);
-            reject(new Error("Failed to get caselet to Caselet History {{In DAO}}"));
+            reject(new Error("Failed to get Caselet History by Caselet ID {{In DAO}}"));
         });
     });
 }
@@ -94,16 +133,16 @@ function addSubmittedCaselet(caseletId, authorMid) {
         })
             .then((caseletHistory, err) => {
                 if (!err) {
-                    console.log("Caselet added to Caselet History");
+                    console.log("Caselet History added {{In DAO}}");
                     resolve(caseletHistory);
                 } else {
-                    console.log("Failed to add caselet to Caselet History {{In DAO}} ", err);
-                    reject(new Error("Failed to add caselet to Caselet History {{In DAO}}"));
+                    console.log("Failed to add Caselet History {{In DAO}} ", err);
+                    reject(new Error("Failed to add Caselet History {{In DAO}}"));
                 }
             }).catch((error) => {
-                console.log("Failed to add caselet to Caselet History {{In DAO}}");
+                console.log("Failed to add Caselet History {{In DAO}}");
                 console.log('Error', error);
-                reject(new Error("Failed to add caselet to Caselet History {{In DAO}}"));
+                reject(new Error("Failed to add Caselet History {{In DAO}}"));
             });
     });
 }
@@ -124,16 +163,16 @@ function updateSubmittedCaselet(caseletId, authorMid) {
             })
             .then((caseletHistory, err) => {
                 if (!err) {
-                    console.log("Caselet updated to Caselet History");
+                    console.log("Caselet History updated {{In DAO}}");
                     resolve(caseletHistory);
                 } else {
-                    console.log("Failed to update caselet to Caselet History {{In DAO}} ", err);
-                    reject(new Error("Failed to update caselet to Caselet History {{In DAO}}"));
+                    console.log("Failed to update Caselet History {{In DAO}} ", err);
+                    reject(new Error("Failed to update Caselet History {{In DAO}}"));
                 }
             }).catch((error) => {
-                console.log("Failed to update caselet to Caselet History {{In DAO}}");
+                console.log("Failed to update Caselet History {{In DAO}}");
                 console.log('Error', error);
-                reject(new Error("Failed to update caselet to Caselet History {{In DAO}}"));
+                reject(new Error("Failed to update Caselet History {{In DAO}}"));
             });
     });
 }
@@ -155,16 +194,16 @@ function sendBackCaselet(caseletId, message, adminMid) {
             })
             .then((caseletHistory, err) => {
                 if (!err) {
-                    console.log("Caselet updated to Caselet History");
+                    console.log("Caselet History updated {{In DAO}}");
                     resolve(caseletHistory);
                 } else {
-                    console.log("Failed to update caselet to Caselet History {{In DAO}} ", err);
-                    reject(new Error("Failed to update caselet to Caselet History {{In DAO}}"));
+                    console.log("Failed to update Caselet History {{In DAO}} ", err);
+                    reject(new Error("Failed to update Caselet History {{In DAO}}"));
                 }
             }).catch((error) => {
-                console.log("Failed to update caselet to Caselet History {{In DAO}}");
+                console.log("Failed to update Caselet History {{In DAO}}");
                 console.log('Error', error);
-                reject(new Error("Failed to update caselet to Caselet History {{In DAO}}"));
+                reject(new Error("Failed to update Caselet History {{In DAO}}"));
             });
     });
 }
@@ -185,16 +224,16 @@ function approveCaselet(caseletId, adminMid, pendingCaseletId) {
             })
             .then((caseletHistory, err) => {
                 if (!err) {
-                    console.log("Caselet updated to Caselet History");
+                    console.log("Caselet History updated {{In DAO}}");
                     resolve(caseletHistory);
                 } else {
-                    console.log("Failed to update caselet to Caselet History {{In DAO}} ", err);
-                    reject(new Error("Failed to update caselet to Caselet History {{In DAO}}"));
+                    console.log("Failed to update Caselet History {{In DAO}} ", err);
+                    reject(new Error("Failed to update Caselet History {{In DAO}}"));
                 }
             }).catch((error) => {
-                console.log("Failed to update caselet to Caselet History {{In DAO}}");
+                console.log("Failed to update Caselet History {{In DAO}}");
                 console.log('Error', error);
-                reject(new Error("Failed to update caselet to Caselet History {{In DAO}}"));
+                reject(new Error("Failed to update Caselet History {{In DAO}}"));
             });
     });
 }
