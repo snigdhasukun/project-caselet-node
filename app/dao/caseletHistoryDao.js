@@ -16,8 +16,6 @@ var caseletHistoryDao = {
 function getCaseletHistory(limit, pageNo, adminMid, status, fromDate) {
     return new Promise((resolve, reject) => {
 
-        console.log("Hi from Dao");
-
         var whereClause = {};
 
         if (typeof adminMid === 'undefined' && typeof status === 'undefined' && typeof fromDate === 'undefined')
