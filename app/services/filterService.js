@@ -5,9 +5,13 @@ var subPracticeDao = require('../dao/subPracticeDao');
 var offeringDao = require('../dao/offeringDao');
 var verticalDao = require('../dao/verticalDao');
 var practiceDao = require('../dao/practiceDao');
+var technologyDao = require('../dao/technologyDao');
+var toolDao = require('../dao/toolDao');
 
 var filterService = {
-    getFilters
+    getFilters,
+    getTechnologies,
+    getTools
 }
 
 function getFilters() {
@@ -34,6 +38,36 @@ function getFilters() {
             })
             .catch((err) => {
                 console.log("Failed to get filters {{In Service}}", err);
+                reject(err);
+            });
+    });
+}
+
+function getTechnologies() {
+    return new Promise((resolve, reject) => {
+
+        technologyDao.getTechnologies()
+            .then((technologies) => {
+                console.log("Technologies retrieved! {{In Service}}");
+                resolve(technologies);
+            })
+            .catch((err) => {
+                console.log("Failed to get technologies {{In Service}}", err);
+                reject(err);
+            });
+    });
+}
+
+function getTools() {
+    return new Promise((resolve, reject) => {
+
+        toolDao.getTools()
+            .then((tools) => {
+                console.log("Tools retrieved! {{In Service}}");
+                resolve(tools);
+            })
+            .catch((err) => {
+                console.log("Failed to get tools {{In Service}}", err);
                 reject(err);
             });
     });
