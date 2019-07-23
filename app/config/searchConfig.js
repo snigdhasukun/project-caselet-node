@@ -6,6 +6,6 @@ module.exports = {
     queryKey: "515BAE0F29ECC9BDFDFE4B1128089DFB",
     apiVersion: "2019-05-06",
     // index: "storyforms-view"
-    index: "project-caselet-view"
+    index: "project-caselet-index"
     
 }
