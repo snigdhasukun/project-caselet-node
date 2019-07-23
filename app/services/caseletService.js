@@ -1,4 +1,5 @@
 var Promise = require('bluebird');
+const puppeeter = require('puppeteer');
 var AzureSearch = require('azure-search');
 var searchConfig = require('../config/searchConfig');
 var sendEmail = require('../util/mailer');
@@ -8,6 +9,8 @@ var userDao = require('../dao/userDao');
 var pendingCaseletDao = require('../dao/pendingCaseletDao');
 var activityLogDao = require('../dao/activityLogDao');
 var caseletHistoryDao = require('../dao/caseletHistoryDao');
+
+var template = require('../templates/downloadTemplate');
 
 var caseletService = {
     getProjects,
@@ -129,13 +132,13 @@ function addPendingCaselet(body, userMid) {
                                     .then((caseletHistory) => {
                                         console.log("Pending Caselet added! {{In Service}}");
                                         resolve(projectAdded);
-                                })
+                                    })
                             }
                             else {
                                 console.log("Pending Caselet added! {{In Service}}");
                                 resolve(projectAdded);
                             }
-                            
+
                         }).catch((err) => {
                             console.log("Failed to add pending caselet {{In Service}}", err);
                             reject(err);
@@ -256,17 +259,24 @@ function shareProject(projectId, from, body) {
 
 function downloadProject(projectId, userMid) {
     return new Promise((resolve, reject) => {
-        caseletDao.downloadProject(projectId)
-            .then((project) => {
-                activityLogDao.addEvent("Download", userMid, projectId)
-                    .then((event) => {
-                        console.log("Project downloaded! {{In Service}}");
-                        resolve(project);
-                    });
-            }).catch((err) => {
-                console.log("Failed to download project {{In Service}}", err);
-                reject(err);
+        caseletDao.getProjectById(projectId).then((response) => {
+            // caseletDao.downloadProject(projectId)
+            // .then((project) => {
+            //     activityLogDao.addEvent("Download", userMid, projectId)
+            //         .then((event) => {
+            //             console.log("Project downloaded! {{In Service}}");
+            //             resolve(project);
+            // //         });
+            // }).catch((err) => {
+            //     console.log("Failed to download project {{In Service}}", err);
+            //     reject(err);
+            // });
+            downloadTemplate(response).then((pdf) => {
+                // console.log(pdf);
+                resolve(pdf);
             });
+            // resolve(response);
+        });
     });
 }
 
@@ -391,5 +401,37 @@ function searchAndFilterCaselet(searchValue, filterValue, pageNo, limit, userMid
         });
     });
 }
+
+async function downloadTemplate(caselet) {
+    const templateCreated = template.createTemplate(caselet);
+    try {
+        const browser = await puppeeter.launch();
+        const page = await browser.newPage();
+        await page.setContent(templateCreated, {
+            waitUntil: 'networkidle0'
+        });
+        // await page.emulateMedia('screen');
+        const pdf = await page.pdf({
+            // path: 'mypdf.pdf',
+            format: 'A4',
+            margin: { top: 20, bottom: 50 },
+            footerTemplate: `<div style = "width: 100%; text-align: center; font-size: 8px;">
+                <hr>
+                <div style = "width: 100%; text-align: center">
+                Page <span class='pageNumber'></span> 
+                OF <span class='totalPages'></span></div></div>`,
+            displayHeaderFooter: true,
+            printBackground: true
+        });
+
+        console.log('done');
+        await browser.close();
+        // process.exit();
+        return pdf;
+    } catch (e) {
+        console.log('error', e);
+    }
+}
+
 
 module.exports = caseletService;

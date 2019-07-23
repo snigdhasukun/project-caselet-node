@@ -139,16 +139,15 @@ function shareProject(req, res) {
     });
 }
 
-function downloadProject(req, res) {
+async function downloadProject(req, res) {
     var response = new Response();
 
     var projectId = req.params.projectId;
 
     caseletService.downloadProject(projectId, req.user.mid).then((project) => {
-        response.data.project = project;
-        response.status.statusCode = '200';
-        response.status.message = 'Project downloaded successfully!!';
-        res.status(200).json(response);
+        res.set({ 'Content-Type': 'application/pdf', 'Content-Length': project.length });
+        // res.status(200).json(project);
+        res.send(project);
     }).catch((err) => {
         response.status.statusCode = '500';
         response.status.message = 'Could not download project: ' + err.message;
