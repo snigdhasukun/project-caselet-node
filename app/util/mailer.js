@@ -1,7 +1,7 @@
 var nodemailer = require('nodemailer');
 
 var config = require('../config/emailConfig');
-var template = require('../constants/emailTemplate');
+var template = require('../templates/emailTemplate');
 
 // var transporter = nodemailer.createTransport({
 //   service: config.service,

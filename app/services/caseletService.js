@@ -414,7 +414,7 @@ async function downloadTemplate(caselet) {
         const pdf = await page.pdf({
             // path: 'mypdf.pdf',
             format: 'A4',
-            margin: { top: 20, bottom: 50 },
+            margin: { top: 20, bottom: 50, right: 10, left: 10 },
             footerTemplate: `<div style = "width: 100%; text-align: center; font-size: 8px;">
                 <hr>
                 <div style = "width: 100%; text-align: center">
@@ -423,10 +423,7 @@ async function downloadTemplate(caselet) {
             displayHeaderFooter: true,
             printBackground: true
         });
-
-        console.log('done');
         await browser.close();
-        // process.exit();
         return pdf;
     } catch (e) {
         console.log('error', e);
