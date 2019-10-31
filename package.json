@@ -22,7 +22,7 @@
     "passport": "^0.4.0",
     "passport-azure-ad": "^4.0.0",
     "puppeteer": "^1.18.1",
-    "sequelize": "^5.2.9",
+    "sequelize": "^5.15.1",
     "tedious": "^6.1.0"
   }
 }
